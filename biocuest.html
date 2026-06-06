@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>bioCUEST</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f5f5f0;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 1.5rem 1rem;
+  }
+  #app { width: 100%; max-width: 600px; }
+
+  /* PANTALLA NOMBRE */
+  #screen-name { background: #fff; border-radius: 16px; padding: 2rem; border: 1px solid #e0e0d8; }
+  #screen-name .logo { font-size: 28px; font-weight: 700; color: #1a5c38; margin-bottom: .25rem; letter-spacing: -0.5px; }
+  #screen-name .logo span { color: #5b9e75; }
+  #screen-name p { font-size: 14px; color: #666; line-height: 1.6; margin-bottom: 1.25rem; margin-top: .5rem; }
+  #name-row { display: flex; gap: 8px; }
+  #name-input {
+    flex: 1; padding: 10px 14px; border: 1px solid #ddd; border-radius: 10px;
+    font-size: 15px; font-family: inherit; outline: none;
+    transition: border-color .2s;
+  }
+  #name-input:focus { border-color: #1a5c38; }
+  #btn-start {
+    padding: 10px 20px; background: #1a5c38; color: #fff; border: none;
+    border-radius: 10px; font-size: 15px; font-family: inherit; cursor: pointer;
+    transition: background .2s;
+  }
+  #btn-start:hover { background: #145030; }
+
+  /* PANTALLA JUEGO */
+  #screen-game { display: none; }
+  .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+  .top-bar .logo-sm { font-size: 16px; font-weight: 700; color: #1a5c38; letter-spacing: -0.3px; }
+  .top-bar .logo-sm span { color: #5b9e75; }
+  .pts-badge { background: #1a5c38; color: #fff; font-size: 13px; font-weight: 600; padding: 4px 12px; border-radius: 20px; }
+  #progress-bar { height: 4px; background: #e0e0d8; border-radius: 4px; margin-bottom: 1.25rem; overflow: hidden; }
+  #progress-fill { height: 100%; background: #1a5c38; border-radius: 4px; transition: width .4s ease; }
+  .q-meta { display: flex; align-items: center; gap: 8px; margin-bottom: .75rem; }
+  .q-num { font-size: 12px; color: #888; }
+  #cat-badge {
+    font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: .05em;
+  }
+  .cat-plato { background: #ede9fe; color: #4c1d95; }
+  .cat-nutrientes { background: #dcfce7; color: #14532d; }
+  .cat-bio { background: #ffedd5; color: #7c2d12; }
+  .cat-semillas { background: #dbeafe; color: #1e3a8a; }
+  .cat-hoy { background: #fef9c3; color: #713f12; }
+  #q-card {
+    background: #fff; border: 1px solid #e0e0d8; border-radius: 14px;
+    padding: 1.25rem 1.5rem; margin-bottom: 1rem;
+  }
+  #q-text { font-size: 16px; font-weight: 500; line-height: 1.6; color: #1a1a1a; }
+  #options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 1rem; }
+  .opt {
+    background: #fafaf8; border: 1px solid #e0e0d8; border-radius: 10px;
+    padding: 10px 14px; font-size: 13px; cursor: pointer; text-align: left;
+    color: #1a1a1a; line-height: 1.4; font-family: inherit;
+    transition: background .15s, border-color .15s;
+  }
+  .opt:hover:not(:disabled) { background: #f0f0ea; border-color: #c0c0b8; }
+  .opt.correct { background: #dcfce7; border-color: #16a34a; color: #14532d; font-weight: 500; }
+  .opt.wrong { background: #fee2e2; border-color: #dc2626; color: #7f1d1d; }
+  .opt.reveal { background: #dcfce7; border-color: #16a34a; color: #14532d; font-weight: 500; }
+  #feedback {
+    font-size: 13px; line-height: 1.6; color: #444; padding: 12px 14px;
+    border-radius: 10px; background: #fafaf8; border: 1px solid #e0e0d8;
+    margin-bottom: 1rem; min-height: 52px;
+  }
+  #btn-next {
+    width: 100%; padding: 11px; border: 1px solid #c0c0b8; border-radius: 10px;
+    background: #fff; font-size: 14px; cursor: pointer; color: #1a1a1a;
+    font-family: inherit; display: none; transition: background .15s;
+  }
+  #btn-next:hover { background: #f0f0ea; }
+
+  /* PANTALLA FINAL */
+  #screen-end { display: none; background: #fff; border-radius: 16px; padding: 2rem; border: 1px solid #e0e0d8; text-align: center; }
+  #screen-end .logo { font-size: 22px; font-weight: 700; color: #1a5c38; margin-bottom: 1.5rem; }
+  #screen-end .logo span { color: #5b9e75; }
+  #end-player { font-size: 14px; color: #888; margin-bottom: .25rem; }
+  #end-score { font-size: 48px; font-weight: 700; color: #1a5c38; margin: .5rem 0; }
+  #end-title { font-size: 20px; font-weight: 600; color: #1a1a1a; margin-bottom: .5rem; }
+  #end-msg { font-size: 14px; color: #555; line-height: 1.6; margin-bottom: 1.5rem; }
+  .code-section { text-align: left; margin-bottom: 1.25rem; }
+  .code-label { font-size: 12px; color: #888; margin-bottom: 6px; }
+  #code-box {
+    background: #fafaf8; border: 1px solid #e0e0d8; border-radius: 10px;
+    padding: 12px 14px; font-family: monospace; font-size: 13px; color: #1a1a1a;
+    word-break: break-all;
+  }
+  #btn-copy {
+    width: 100%; margin-top: 8px; padding: 10px; background: #1a5c38; color: #fff;
+    border: none; border-radius: 10px; font-size: 14px; font-family: inherit;
+    cursor: pointer; transition: background .2s; margin-bottom: .75rem;
+  }
+  #btn-copy:hover { background: #145030; }
+  #btn-restart {
+    width: 100%; padding: 10px; background: #fff; color: #1a1a1a;
+    border: 1px solid #ddd; border-radius: 10px; font-size: 14px;
+    font-family: inherit; cursor: pointer; transition: background .15s;
+  }
+  #btn-restart:hover { background: #f0f0ea; }
+
+  @media (max-width: 420px) {
+    #options { grid-template-columns: 1fr; }
+    body { padding: 1rem .75rem; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div id="screen-name">
+    <div class="logo">bio<span>CUEST</span></div>
+    <p>Repaso de la clase anterior sobre producción primaria y sistemas agroalimentarios. Ingresá tu nombre y apellido para empezar — al final vas a recibir un código para entregar en Classroom.</p>
+    <div id="name-row">
+      <input type="text" id="name-input" placeholder="Nombre y apellido" maxlength="40" />
+      <button id="btn-start">Empezar</button>
+    </div>
+  </div>
+
+  <div id="screen-game">
+    <div class="top-bar">
+      <span class="logo-sm">bio<span>CUEST</span></span>
+      <span class="pts-badge" id="pts-badge">0 pts</span>
+    </div>
+    <div id="progress-bar"><div id="progress-fill" style="width:10%"></div></div>
+    <div class="q-meta">
+      <span class="q-num" id="q-num-label">1 / 10</span>
+      <span id="cat-badge"></span>
+    </div>
+    <div id="q-card"><p id="q-text"></p></div>
+    <div id="options"></div>
+    <div id="feedback">Seleccioná una respuesta para continuar.</div>
+    <button id="btn-next">Siguiente →</button>
+  </div>
+
+  <div id="screen-end">
+    <div class="logo">bio<span>CUEST</span></div>
+    <div id="end-player"></div>
+    <div id="end-score"></div>
+    <div id="end-title"></div>
+    <div id="end-msg"></div>
+    <div class="code-section">
+      <div class="code-label">Tu código de resultado — copialo y pegalo en Classroom:</div>
+      <div id="code-box"></div>
+      <button id="btn-copy">Copiar código</button>
+    </div>
+    <button id="btn-restart">Jugar de nuevo</button>
+  </div>
+
+</div>
+
+<script>
+const ALL_Q = [
+  {
+    cat:"¿Qué hay en tu plato?", cls:"cat-plato",
+    q:"En Argentina, casi el 39% de la superficie agrícola está sembrada con soja. ¿A dónde va principalmente esa producción?",
+    opts:["Se consume en su totalidad dentro del país como alimento directo","Se exporta como grano o harina, y una parte se usa para alimentar ganado","Se distribuye equitativamente entre consumo local, ganadería y exportación","Se destina principalmente a producción de biocombustibles para uso interno"],
+    c:1,
+    exp:"La mayor parte de la soja argentina se exporta como grano o harina (principalmente a China y Europa) y otra porción alimenta ganado. Muy poca llega directamente al plato de las y los argentinos."
+  },
+  {
+    cat:"¿Qué hay en tu plato?", cls:"cat-plato",
+    q:"Mirando la superficie sembrada en Argentina: soja 38,9%, maíz 25,6%, trigo 16,9%, girasol 4,9%. ¿Qué tipo de sistema productivo describen esos datos?",
+    opts:["Un sistema diversificado orientado a la alimentación local","Un sistema concentrado en pocos cultivos extensivos principalmente de exportación","Un sistema equilibrado entre producción local y exportación","Un sistema basado en frutas y verduras para el mercado interno"],
+    c:1,
+    exp:"Cuatro cultivos concentran más del 85% de la superficie sembrada, y la mayoría se exporta. Esto muestra un sistema poco diversificado y orientado al mercado internacional más que a la alimentación local."
+  },
+  {
+    cat:"Nutrientes", cls:"cat-nutrientes",
+    q:"Según el texto que leyeron, cuando cosechamos un cultivo y lo transportamos a otro lugar, ¿qué le pasa al suelo donde se produjo?",
+    opts:["Recupera nutrientes porque queda expuesto al sol y la lluvia","Pierde los nutrientes que viajan con la biomasa cosechada y no vuelven","Se enriquece porque las raíces que quedan liberan minerales","No cambia, los nutrientes del suelo son independientes del cultivo"],
+    c:1,
+    exp:"Cada cosecha extrae toneladas de biomasa cargada de nutrientes. Esos nutrientes viajan con el producto hacia los centros de consumo y muchas veces a otros países. Si no se reponen, el suelo se empobrece progresivamente."
+  },
+  {
+    cat:"Nutrientes", cls:"cat-nutrientes",
+    q:"La provincia de Buenos Aires pierde casi 97.000 toneladas de nitrógeno por año. El nitrógeno es esencial para que las plantas crezcan. Cuando se cosecha y se envía la producción lejos, ¿qué ocurre con ese nitrógeno?",
+    opts:["Se repone solo con las lluvias en pocas semanas","Se va con la cosecha y no vuelve al suelo, empobreciéndolo","Se acumula en el suelo cuanto más se produce","Se transforma en otro nutriente que la planta puede usar igual"],
+    c:1,
+    exp:"El nitrógeno que absorbieron las plantas sale del campo con la cosecha. Si no se repone mediante fertilización o fijación biológica, el suelo pierde fertilidad año a año."
+  },
+  {
+    cat:"Agrobiodiversidad", cls:"cat-bio",
+    q:"En la Gran Hambruna Irlandesa (1845), Irlanda dependía de una sola variedad de papa. Cuando un hongo la atacó, no había otras variedades resistentes. ¿Qué nos enseña esa tragedia?",
+    opts:["Que es mejor especializarse en un solo cultivo para producir más","Que la diversidad de variedades funciona como un seguro: si una falla, otras pueden resistir","Que los hongos son el principal problema de la agricultura","Que la papa es un cultivo demasiado frágil y debería reemplazarse"],
+    c:1,
+    exp:"Si hubiera habido otras variedades con distinta resistencia genética, algunas podrían haber sobrevivido. La dependencia de una sola variedad fue la causa de la catástrofe. Eso es exactamente lo que amenaza la pérdida de agrobiodiversidad."
+  },
+  {
+    cat:"Agrobiodiversidad", cls:"cat-bio",
+    q:"La Revolución Verde (años 60) impulsó variedades de alto rendimiento que reemplazaron miles de variedades locales. Usando el ejemplo de la hambruna de la papa, ¿qué riesgo implica eso?",
+    opts:["Ninguno, porque las variedades de alto rendimiento son siempre más resistentes","Si una enfermedad afecta esas pocas variedades dominantes, no hay variedades locales adaptadas para reemplazarlas","Las variedades locales son menos nutritivas, por eso no importa perderlas","La Revolución Verde en realidad aumentó la diversidad de cultivos disponibles"],
+    c:1,
+    exp:"Al reemplazar miles de variedades locales por pocas variedades de alto rendimiento, se reduce la diversidad genética disponible. Si esas variedades son atacadas o no toleran un cambio climático, no hay alternativas adaptadas localmente."
+  },
+  {
+    cat:"Semillas", cls:"cat-semillas",
+    q:"El tomate platense es una semilla criolla: agricultoras y agricultores la fueron seleccionando y guardando temporada tras temporada. ¿Qué ventaja tiene eso para quien la cultiva?",
+    opts:["Cada temporada tiene que comprar nuevas semillas a una empresa para poder producir","Puede guardar sus propias semillas y volver a sembrar sin necesidad de comprarlas de nuevo cada año","Produce menos que cualquier semilla industrial, por eso no conviene usarla","Solo funciona en La Plata y no puede trasladarse a otras regiones"],
+    c:1,
+    exp:"Las semillas criollas pueden guardarse de una temporada a la siguiente. Eso le da autonomía a quien produce: no depende de comprar semillas nuevas cada año y puede adaptarlas a sus condiciones locales."
+  },
+  {
+    cat:"Semillas", cls:"cat-semillas",
+    q:"La soja RR es una semilla a la que se le insertó un gen de otra especie mediante tecnología de ADN recombinante. Esa modificación fue patentada por Monsanto (hoy Bayer). ¿Qué consecuencia tiene eso para las agricultoras y los agricultores?",
+    opts:["Pueden guardar la semilla libremente y volver a plantarla sin restricciones","Dependen de Monsanto/Bayer para acceder a la semilla cada temporada porque esa corporación patentó la modificación","La semilla se vuelve local con el tiempo y deja de depender de la empresa","No tiene consecuencias distintas a las de cualquier otra semilla del mercado"],
+    c:1,
+    exp:"Cuando una tecnología está patentada, solo quien tiene la patente decide quién la usa y a qué precio. Las y los productores deben comprar la semilla cada temporada, generando dependencia tecnológica y económica."
+  },
+  {
+    cat:"Hacia la clase de hoy", cls:"cat-hoy",
+    q:"La producción agrícola intensiva usa grandes cantidades de agroquímicos que se aplican sobre los campos. ¿Qué puede pasar con esas sustancias cuando llueve o se riega?",
+    opts:["Se evaporan completamente sin dejar rastros en el ambiente","Pueden filtrarse al suelo y llegar a napas, ríos o arroyos contaminando el agua","El suelo las neutraliza siempre antes de que lleguen al agua","Solo afectan al cultivo y no tienen impacto fuera del campo"],
+    c:1,
+    exp:"Los agroquímicos pueden filtrarse al suelo y llegar a napas freáticas, o escurrir hacia ríos con el agua de lluvia. Detectar esas sustancias en el agua es exactamente lo que hace la tecnología que vamos a ver hoy en el video."
+  },
+  {
+    cat:"Hacia la clase de hoy", cls:"cat-hoy",
+    q:"La soja puede asociarse con bacterias del suelo (Bradyrhizobium) que toman nitrógeno del aire y lo convierten en una forma que la planta puede absorber. Si eso funciona bien, ¿qué insumo externo podría reducirse?",
+    opts:["El agua de riego","Los fertilizantes nitrogenados sintéticos","Los pesticidas para plagas de insectos","La maquinaria de cosecha"],
+    c:1,
+    exp:"Si las bacterias del suelo proveen el nitrógeno de forma natural, no hace falta agregar fertilizantes nitrogenados sintéticos. Este es el principio de los bioinoculantes que vamos a estudiar hoy."
+  }
+];
+
+let player="", current=0, score=0, answered=false, deck=[];
+
+function shuffle(a){return[...a].sort(()=>Math.random()-.5)}
+
+function startGame(){
+  const n=document.getElementById('name-input').value.trim();
+  if(!n){document.getElementById('name-input').focus();return;}
+  player=n;deck=shuffle(ALL_Q);current=0;score=0;answered=false;
+  document.getElementById('screen-name').style.display='none';
+  document.getElementById('screen-game').style.display='block';
+  render();
+}
+
+function render(){
+  if(current>=deck.length){showEnd();return;}
+  const q=deck[current];answered=false;
+  document.getElementById('q-num-label').textContent=(current+1)+' / '+deck.length;
+  document.getElementById('pts-badge').textContent=score+' pts';
+  document.getElementById('progress-fill').style.width=((current+1)/deck.length*100)+'%';
+  const badge=document.getElementById('cat-badge');
+  badge.textContent=q.cat;badge.className=q.cls;
+  document.getElementById('q-text').textContent=q.q;
+  document.getElementById('feedback').textContent='Seleccioná una respuesta para continuar.';
+  document.getElementById('btn-next').style.display='none';
+  const opts=document.getElementById('options');
+  opts.innerHTML='';
+  q.opts.forEach((o,i)=>{
+    const b=document.createElement('button');
+    b.className='opt';b.textContent=o;
+    b.onclick=()=>answer(i,b);
+    opts.appendChild(b);
+  });
+}
+
+function answer(idx,btn){
+  if(answered)return;answered=true;
+  const q=deck[current];
+  document.querySelectorAll('.opt').forEach(b=>b.disabled=true);
+  if(idx===q.c){
+    btn.classList.add('correct');score++;
+    document.getElementById('pts-badge').textContent=score+' pts';
+    document.getElementById('feedback').innerHTML='<strong>¡Correcto!</strong> '+q.exp;
+  } else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('.opt')[q.c].classList.add('reveal');
+    document.getElementById('feedback').innerHTML='<strong>No es esa.</strong> '+q.exp;
+  }
+  document.getElementById('btn-next').style.display='block';
+}
+
+function showEnd(){
+  document.getElementById('screen-game').style.display='none';
+  document.getElementById('screen-end').style.display='block';
+  const pct=score/deck.length;
+  let title,msg;
+  if(pct>=.9){title='¡Excelente!';msg='Dominás muy bien los conceptos de la clase anterior. Listos para profundizar en transgénicos y bioinsumos.';}
+  else if(pct>=.6){title='Bien, con cosas para reforzar';msg='Repasá el material de la clase en la bibliografía de Classroom. Esta semana conectamos esos conceptos con nuevas tecnologías.';}
+  else{title='Vale la pena repasar';msg='Consultá el material de la clase anterior antes de continuar. Podés encontrarlo en la bibliografía de Classroom.';}
+  document.getElementById('end-player').textContent=player;
+  document.getElementById('end-score').textContent=score+'/'+deck.length;
+  document.getElementById('end-title').textContent=title;
+  document.getElementById('end-msg').textContent=msg;
+  const now=new Date();
+  const fecha=now.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});
+  document.getElementById('code-box').textContent='BIOCUEST|'+player.toUpperCase()+'|'+score+'/'+deck.length+'|'+fecha;
+}
+
+document.getElementById('btn-start').onclick=startGame;
+document.getElementById('name-input').addEventListener('keydown',e=>{if(e.key==='Enter')startGame();});
+document.getElementById('btn-next').onclick=()=>{current++;render();};
+document.getElementById('btn-copy').onclick=()=>{
+  navigator.clipboard.writeText(document.getElementById('code-box').textContent).then(()=>{
+    const b=document.getElementById('btn-copy');
+    b.textContent='¡Copiado!';
+    setTimeout(()=>b.textContent='Copiar código',2000);
+  });
+};
+document.getElementById('btn-restart').onclick=()=>{
+  deck=shuffle(ALL_Q);current=0;score=0;answered=false;
+  document.getElementById('screen-end').style.display='none';
+  document.getElementById('screen-game').style.display='block';
+  render();
+};
+</script>
+</body>
+</html>
