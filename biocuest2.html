@@ -191,26 +191,30 @@ function render(){
   document.getElementById('q-text').textContent=q.q;
   document.getElementById('feedback').textContent='Seleccioná una respuesta para continuar.';
   document.getElementById('btn-next').style.display='none';
+  // Barajar opciones y registrar nueva posición de la correcta
+  const correctText=q.opts[q.c];
+  const shuffledOpts=[...q.opts].sort(()=>Math.random()-.5);
+  const newCorrectIdx=shuffledOpts.indexOf(correctText);
   const opts=document.getElementById('options');
   opts.innerHTML='';
-  q.opts.forEach((o,i)=>{
+  shuffledOpts.forEach((o,i)=>{
     const b=document.createElement('button');
     b.className='opt';b.textContent=o;
-    b.onclick=()=>answer(i,b);
+    b.onclick=()=>answerShuffled(i,b,newCorrectIdx);
     opts.appendChild(b);
   });
 }
-function answer(idx,btn){
+function answerShuffled(idx,btn,correctIdx){
   if(answered)return;answered=true;
   const q=deck[current];
   document.querySelectorAll('.opt').forEach(b=>b.disabled=true);
-  if(idx===q.c){
+  if(idx===correctIdx){
     btn.classList.add('correct');score++;
     document.getElementById('pts-badge').textContent=score+' pts';
     document.getElementById('feedback').innerHTML='<strong>¡Correcto!</strong> '+q.exp;
   } else {
     btn.classList.add('wrong');
-    document.querySelectorAll('.opt')[q.c].classList.add('reveal');
+    document.querySelectorAll('.opt')[correctIdx].classList.add('reveal');
     document.getElementById('feedback').innerHTML='<strong>No es esa.</strong> '+q.exp;
   }
   document.getElementById('btn-next').style.display='block';
@@ -241,5 +245,7 @@ document.getElementById('btn-copy').onclick=()=>{
   });
 };
 </script>
+</body>
+</html>
 </body>
 </html>
