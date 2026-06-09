@@ -8,68 +8,99 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #f5f5f0;
+    background: #f9f9f7;
     min-height: 100vh;
     display: flex;
     align-items: flex-start;
     justify-content: center;
     padding: 1.5rem 1rem;
+    color: #1a1a1a;
   }
   #app { width: 100%; max-width: 600px; }
-
-  #screen-name { background: #fff; border-radius: 16px; padding: 2rem; border: 1px solid #e0e0d8; }
-  #screen-name .logo { font-size: 28px; font-weight: 700; color: #1a5c38; margin-bottom: .25rem; letter-spacing: -0.5px; }
-  #screen-name .logo span { color: #5b9e75; }
-  #screen-name .logo .num { font-size: 18px; font-weight: 400; color: #888; margin-left: 4px; }
+ 
+  /* PANTALLA NOMBRE */
+  #screen-name { background: #fff; border-radius: 12px; padding: 1.5rem; border: 0.5px solid #e0e0d8; }
+  .logo { font-size: 24px; font-weight: 500; color: #1a1a1a; margin-bottom: .25rem; }
+  .logo span { color: #1D9E75; }
+  .logo .num { font-size: 15px; font-weight: 400; color: #888; margin-left: 3px; }
   #screen-name p { font-size: 14px; color: #666; line-height: 1.6; margin-bottom: 1.25rem; margin-top: .5rem; }
   #name-row { display: flex; gap: 8px; }
-  #name-input { flex: 1; padding: 10px 14px; border: 1px solid #ddd; border-radius: 10px; font-size: 15px; font-family: inherit; outline: none; transition: border-color .2s; }
-  #name-input:focus { border-color: #1a5c38; }
-  #btn-start { padding: 10px 20px; background: #1a5c38; color: #fff; border: none; border-radius: 10px; font-size: 15px; font-family: inherit; cursor: pointer; transition: background .2s; }
-  #btn-start:hover { background: #145030; }
-  #name-error { font-size: 13px; color: #dc2626; margin-top: 8px; display: none; }
-
-  #screen-blocked { display: none; background: #fff; border-radius: 16px; padding: 2rem; border: 1px solid #e0e0d8; text-align: center; }
-  #screen-blocked p { font-size: 15px; color: #555; line-height: 1.6; }
-
+  #name-input {
+    flex: 1; padding: 9px 13px; border: 0.5px solid #d0d0c8; border-radius: 8px;
+    font-size: 14px; font-family: inherit; outline: none; background: #fafaf8;
+    transition: border-color .2s;
+  }
+  #name-input:focus { border-color: #1D9E75; background: #fff; }
+  #btn-start {
+    padding: 9px 18px; background: #1D9E75; color: #fff; border: none;
+    border-radius: 8px; font-size: 14px; font-family: inherit; cursor: pointer;
+    transition: background .2s; white-space: nowrap;
+  }
+  #btn-start:hover { background: #178a63; }
+  #name-error { font-size: 13px; color: #E24B4A; margin-top: 8px; display: none; }
+ 
+  /* JUEGO */
   #screen-game { display: none; }
   .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-  .top-bar .logo-sm { font-size: 16px; font-weight: 700; color: #1a5c38; }
-  .top-bar .logo-sm span { color: #5b9e75; }
-  .pts-badge { background: #1a5c38; color: #fff; font-size: 13px; font-weight: 600; padding: 4px 12px; border-radius: 20px; }
-  #progress-bar { height: 4px; background: #e0e0d8; border-radius: 4px; margin-bottom: 1.25rem; overflow: hidden; }
-  #progress-fill { height: 100%; background: #1a5c38; border-radius: 4px; transition: width .4s ease; }
+  .logo-sm { font-size: 15px; font-weight: 500; color: #1a1a1a; }
+  .logo-sm span { color: #1D9E75; }
+  .pts-badge {
+    background: #1D9E75; color: #fff; font-size: 12px; font-weight: 500;
+    padding: 3px 11px; border-radius: 20px;
+  }
+  #progress-bar { height: 3px; background: #e8e8e4; border-radius: 4px; margin-bottom: 1.25rem; overflow: hidden; }
+  #progress-fill { height: 100%; background: #1D9E75; border-radius: 4px; transition: width .4s; }
   .q-meta { display: flex; align-items: center; gap: 8px; margin-bottom: .75rem; }
-  .q-num { font-size: 12px; color: #888; }
-  #cat-badge { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: .05em; }
-  .cat-lunes { background: #dcfce7; color: #14532d; }
-  .cat-trigo { background: #ede9fe; color: #4c1d95; }
-  .cat-bio { background: #dbeafe; color: #1e3a8a; }
-  .cat-ambos { background: #fef9c3; color: #713f12; }
-  #q-card { background: #fff; border: 1px solid #e0e0d8; border-radius: 14px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; }
-  #q-text { font-size: 16px; font-weight: 500; line-height: 1.6; color: #1a1a1a; }
-  #options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 1rem; }
-  .opt { background: #fafaf8; border: 1px solid #e0e0d8; border-radius: 10px; padding: 10px 14px; font-size: 13px; cursor: pointer; text-align: left; color: #1a1a1a; line-height: 1.4; font-family: inherit; transition: background .15s, border-color .15s; }
-  .opt:hover:not(:disabled) { background: #f0f0ea; border-color: #c0c0b8; }
-  .opt.correct { background: #dcfce7; border-color: #16a34a; color: #14532d; font-weight: 500; }
-  .opt.wrong { background: #fee2e2; border-color: #dc2626; color: #7f1d1d; }
-  .opt.reveal { background: #dcfce7; border-color: #16a34a; color: #14532d; font-weight: 500; }
-  #feedback { font-size: 13px; line-height: 1.6; color: #444; padding: 12px 14px; border-radius: 10px; background: #fafaf8; border: 1px solid #e0e0d8; margin-bottom: 1rem; min-height: 52px; }
-  #btn-next { width: 100%; padding: 11px; border: 1px solid #c0c0b8; border-radius: 10px; background: #fff; font-size: 14px; cursor: pointer; color: #1a1a1a; font-family: inherit; display: none; transition: background .15s; }
-  #btn-next:hover { background: #f0f0ea; }
-
-  #screen-end { display: none; background: #fff; border-radius: 16px; padding: 2rem; border: 1px solid #e0e0d8; }
-  #screen-end .logo { font-size: 22px; font-weight: 700; color: #1a5c38; margin-bottom: 1.5rem; }
-  #screen-end .logo span { color: #5b9e75; }
-  #end-player { font-size: 14px; color: #888; margin-bottom: .25rem; }
-  #end-score { font-size: 48px; font-weight: 700; color: #1a5c38; margin: .5rem 0; }
-  #end-title { font-size: 20px; font-weight: 600; color: #1a1a1a; margin-bottom: .5rem; }
-  #end-msg { font-size: 14px; color: #555; line-height: 1.6; margin-bottom: 1.5rem; }
-  .code-label { font-size: 12px; color: #888; margin-bottom: 6px; }
-  #code-box { background: #fafaf8; border: 1px solid #e0e0d8; border-radius: 10px; padding: 12px 14px; font-family: monospace; font-size: 14px; font-weight: 600; color: #1a1a1a; word-break: break-all; margin-bottom: 8px; }
-  #btn-copy { width: 100%; padding: 10px; background: #1a5c38; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-family: inherit; cursor: pointer; transition: background .2s; }
-  #btn-copy:hover { background: #145030; }
-
+  .q-num-label { font-size: 12px; color: #999; }
+  #cat-badge { font-size: 11px; font-weight: 500; padding: 2px 9px; border-radius: 10px; text-transform: uppercase; letter-spacing: .04em; }
+  .cat-lunes  { background: #EAF3DE; color: #27500A; }
+  .cat-trigo  { background: #EEEDFE; color: #26215C; }
+  .cat-bio    { background: #E6F1FB; color: #0C447C; }
+  .cat-ambos  { background: #FAEEDA; color: #412402; }
+  #q-card { background: #fff; border: 0.5px solid #e0e0d8; border-radius: 10px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; }
+  #q-text { font-size: 15px; font-weight: 500; line-height: 1.6; color: #1a1a1a; }
+  #options { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 1rem; }
+  .opt {
+    background: #fafaf8; border: 0.5px solid #e0e0d8; border-radius: 8px;
+    padding: 9px 13px; font-size: 13px; cursor: pointer; text-align: left;
+    color: #1a1a1a; line-height: 1.4; font-family: inherit;
+    transition: background .15s, border-color .15s;
+  }
+  .opt:hover:not(:disabled) { background: #f2f2ee; border-color: #c8c8c0; }
+  .opt.correct { background: #EAF3DE; border-color: #639922; color: #27500A; }
+  .opt.wrong   { background: #FCEBEB; border-color: #E24B4A; color: #501313; }
+  .opt.reveal  { background: #EAF3DE; border-color: #639922; color: #27500A; }
+  #feedback {
+    font-size: 13px; line-height: 1.6; color: #555; padding: 10px 13px;
+    border-radius: 8px; background: #fafaf8; border: 0.5px solid #e0e0d8;
+    margin-bottom: 1rem; min-height: 48px;
+  }
+  #btn-next {
+    width: 100%; padding: 10px; border: 0.5px solid #d0d0c8; border-radius: 8px;
+    background: #fff; font-size: 14px; cursor: pointer; color: #1a1a1a;
+    font-family: inherit; display: none; transition: background .15s;
+  }
+  #btn-next:hover { background: #f2f2ee; }
+ 
+  /* PANTALLA FINAL */
+  #screen-end { display: none; background: #fff; border-radius: 12px; padding: 1.5rem; border: 0.5px solid #e0e0d8; }
+  #end-player { font-size: 13px; color: #999; margin-bottom: .2rem; }
+  #end-score  { font-size: 44px; font-weight: 500; color: #1D9E75; margin: .4rem 0; }
+  #end-title  { font-size: 18px; font-weight: 500; color: #1a1a1a; margin-bottom: .4rem; }
+  #end-msg    { font-size: 14px; color: #666; line-height: 1.6; margin-bottom: 1.25rem; }
+  .code-label { font-size: 12px; color: #999; margin-bottom: 5px; }
+  #code-box {
+    background: #fafaf8; border: 0.5px solid #d0d0c8; border-radius: 8px;
+    padding: 11px 13px; font-family: 'SF Mono', 'Fira Mono', monospace;
+    font-size: 14px; font-weight: 600; color: #1a1a1a; word-break: break-all; margin-bottom: 8px;
+  }
+  #btn-copy {
+    width: 100%; padding: 10px; background: #1D9E75; color: #fff; border: none;
+    border-radius: 8px; font-size: 14px; font-family: inherit; cursor: pointer;
+    transition: background .2s;
+  }
+  #btn-copy:hover { background: #178a63; }
+ 
   @media (max-width: 420px) {
     #options { grid-template-columns: 1fr; }
     body { padding: 1rem .75rem; }
@@ -78,7 +109,7 @@
 </head>
 <body>
 <div id="app">
-
+ 
   <div id="screen-name">
     <div class="logo">bio<span>CUEST</span><span class="num">2</span></div>
     <p>Repaso del TP5 y de la clase del lunes. Ingresá tu nombre y apellido — solo podés jugarlo una vez. Al terminar recibís un código para subir a Classroom.</p>
@@ -88,11 +119,7 @@
     </div>
     <div id="name-error">Ya jugaste con ese nombre. Solo se permite un intento por persona.</div>
   </div>
-
-  <div id="screen-blocked">
-    <p><strong>Ya completaste el bioCUEST 2.</strong><br>Solo se permite un intento. Si no copiaste tu código, consultá a tu docente.</p>
-  </div>
-
+ 
   <div id="screen-game">
     <div class="top-bar">
       <span class="logo-sm">bio<span>CUEST</span> 2</span>
@@ -100,7 +127,7 @@
     </div>
     <div id="progress-bar"><div id="progress-fill" style="width:10%"></div></div>
     <div class="q-meta">
-      <span class="q-num" id="q-num-label">1 / 10</span>
+      <span class="q-num-label" id="q-num-label">1 / 10</span>
       <span id="cat-badge"></span>
     </div>
     <div id="q-card"><p id="q-text"></p></div>
@@ -108,7 +135,7 @@
     <div id="feedback">Seleccioná una respuesta para continuar.</div>
     <button id="btn-next">Siguiente →</button>
   </div>
-
+ 
   <div id="screen-end">
     <div class="logo">bio<span>CUEST</span> 2</div>
     <div id="end-player"></div>
@@ -119,96 +146,29 @@
     <div id="code-box"></div>
     <button id="btn-copy">Copiar código</button>
   </div>
-
+ 
 </div>
-
 <script>
-const ALL_Q = [
-  {
-    cat:"Clase del lunes", cls:"cat-lunes",
-    q:"En el paquete tecnológico soja RR + glifosato, ¿qué hace exactamente el gen bacteriano que se insertó en la soja?",
-    opts:["Hace que la soja produzca su propio herbicida para matar malezas","Codifica una versión de la enzima EPSPS que el glifosato no puede inhibir eficientemente","Le permite a la soja fijar nitrógeno del aire sin necesitar bacterias","Aumenta el rendimiento de la soja en condiciones de sequía"],
-    c:1,
-    exp:"La soja RR lleva un gen bacteriano que codifica una versión modificada de la enzima EPSPS con menor afinidad por el glifosato. Así, cuando se fumiga el campo, las malezas mueren pero la soja sobrevive."
-  },
-  {
-    cat:"Clase del lunes", cls:"cat-lunes",
-    q:"¿Por qué se usó biobalística para transformar el trigo HB4 y no Agrobacterium tumefaciens?",
-    opts:["Porque la biobalística es más barata y rápida en cualquier planta","Porque el trigo es una monocotiledónea y su pared celular es menos susceptible a la infección bacteriana natural","Porque Agrobacterium solo funciona con soja","Porque la biobalística permite insertar más genes en un solo proceso"],
-    c:1,
-    exp:"Agrobacterium funciona bien en dicotiledóneas como la soja, pero en monocotiledóneas como el trigo la pared celular dificulta la infección bacteriana. La biobalística dispara físicamente partículas de oro o tungsteno recubiertas con ADN sobre el tejido vegetal, sin necesitar infección."
-  },
-  {
-    cat:"Trigo HB4", cls:"cat-trigo",
-    q:"El trigo IND-ØØ412-7 tiene dos fenotipos conferidos por modificación genética. Un fenotipo es una característica observable que resulta de la expresión de un gen. ¿Cuáles son los dos fenotipos de este trigo?",
-    opts:["Resistencia a insectos y mayor contenido proteico","Tolerancia a sequía y tolerancia al herbicida glufosinato de amonio","Resistencia al glifosato y mayor rendimiento en suelos salinos","Tolerancia a bajas temperaturas y resistencia a hongos"],
-    c:1,
-    exp:"El trigo HB4 tiene dos fenotipos: tolerancia a sequía (gen HaHB4, del girasol) y tolerancia al herbicida glufosinato de amonio (gen bar, de la bacteria Streptomyces hygroscopicus). Cada gen produce una proteína distinta que genera cada característica observable."
-  },
-  {
-    cat:"Trigo HB4", cls:"cat-trigo",
-    q:"¿Cómo logra el gen HaHB4 que el trigo tolere la sequía según el texto?",
-    opts:["Hace que la planta almacene más agua en sus tejidos durante la lluvia","Participa en vías de señalización que regulan osmoprotectores, retrasan el cierre estomático y modulan fitohormonas como el etileno y el ácido abscísico","Aumenta la longitud de las raíces para alcanzar capas más profundas de agua","Reduce la cantidad de hojas para disminuir la pérdida de agua por transpiración"],
-    c:1,
-    exp:"HaHB4 es un factor de transcripción: una proteína que regula la activación de otros genes. Bajo estrés hídrico activa una cascada de respuestas: induce osmoprotectores, reduce la sensibilidad al etileno, retrasa el cierre estomático e interactúa con fitohormonas. El resultado es que la planta sigue fotosintéticamente activa con menos agua disponible."
-  },
-  {
-    cat:"Trigo HB4", cls:"cat-trigo",
-    q:"El documento de la CONABIA fue producido por la institución estatal que evalúa la liberación de OGMs, usando información presentada por la empresa solicitante. ¿Qué posición te parece más razonable a la hora de analizar sus conclusiones?",
-    opts:[
-      "La CONABIA (institución estatal) aprobó el producto, así que ya pasó todos los controles necesarios y no hace falta preguntarse nada más",
-      "La empresa que quiere vender el producto aportó la información que la CONABIA usó para aprobarlo. ¿Eso podría influir en qué se estudió y qué no?",
-      "Como la empresa tiene interés en que se apruebe su producto, todo lo que dice el documento es mentira",
-      "La ciencia siempre es objetiva sin importar quién la financia o produce"
-    ],
-    c:1,
-    exp:"Leer críticamente una fuente no significa rechazarla ni aceptarla sin más — significa entender desde dónde habla. Que la evaluación use información del solicitante no invalida el documento, pero sí invita a preguntarse qué se estudió, qué no, y si hubo otras voces que evaluaron lo mismo."
-  },
-  {
-    cat:"Bioinoculantes", cls:"cat-bio",
-    q:"¿Qué función cumple Bradyrhizobium diazoefficiens en la co-inoculación para soja?",
-    opts:["Produce fitohormonas que estimulan el desarrollo de las raíces","Fija nitrógeno atmosférico en nódulos de las raíces, proveyendo ese nutriente directamente a la planta","Protege las raíces de hongos patógenos del suelo","Aumenta la absorción de fósforo y potasio"],
-    c:1,
-    exp:"Bradyrhizobium forma nódulos en las raíces de la soja donde fija el nitrógeno atmosférico (N₂) convirtiéndolo en amoniaco (NH₃) que la planta puede absorber. A cambio, la planta le provee carbono a la bacteria. Es una simbiosis: ambos se benefician."
-  },
-  {
-    cat:"Bioinoculantes", cls:"cat-bio",
-    q:"El paper dice que combinar Bradyrhizobium y Azospirillum es 'industrialmente desafiante'. ¿Cuál es el desafío concreto que describe el texto?",
-    opts:["Las dos bacterias se atacan entre sí cuando se mezclan","Tienen diferentes requerimientos de fuentes de carbono y tasas de crecimiento distintas, lo que dificulta cultivarlas juntas","Los agricultores no confían en productos con dos microorganismos","El costo de producir cada bacteria por separado es demasiado alto"],
-    c:1,
-    exp:"Bradyrhizobium crece mejor con manitol y glicerol; Azospirillum prefiere ácido maleico y málico. Además Bradyrhizobium crece lento y Azospirillum rápido — si se mezclan al mismo tiempo, Azospirillum domina. La solución fue una formulación compatible e inocular Azospirillum al tercer día de crecimiento de Bradyrhizobium."
-  },
-  {
-    cat:"Bioinoculantes", cls:"cat-bio",
-    q:"En los ensayos a campo, los resultados variaron según el historial del suelo. En sitios como Londrina, con alta población naturalizada de Bradyrhizobium, ¿qué ocurrió con el inoculante compuesto?",
-    opts:["Dio resultados mucho mejores que en cualquier otro sitio","No hubo diferencia estadística con el control no inoculado — la bacteria nativa ya proveía suficiente nitrógeno","El inoculante compuesto fue peor que el fertilizante nitrogenado sintético","Las bacterias del inoculante no sobrevivieron en ese suelo"],
-    c:1,
-    exp:"Cuando el suelo ya tiene abundante Bradyrhizobium nativo y eficiente, agregar más no marca diferencia. Esto muestra que el bioinsumo no tiene efecto universal — su eficacia depende del contexto del suelo. En suelos vírgenes de soja como Lutécia y Paranavaí, el efecto fue mucho mayor."
-  },
-  {
-    cat:"Comparando ambos", cls:"cat-ambos",
-    q:"Tanto el trigo HB4 como los bioinoculantes buscan mejorar la producción agrícola pero intervienen de forma muy distinta. ¿Cuál es la diferencia más fundamental entre los dos enfoques?",
-    opts:["Uno es argentino y el otro es brasileño","Uno modifica el genoma del organismo vegetal; el otro trabaja con microorganismos del suelo que potencian procesos naturales","Uno sirve para el trigo y el otro solo para la soja","Uno fue aprobado por el Estado y el otro no tiene regulación"],
-    c:1,
-    exp:"El trigo HB4 interviene en el genoma de la planta insertando genes de otras especies. Los bioinoculantes trabajan con microorganismos que ya existen en la naturaleza, potenciando procesos biológicos como la fijación de nitrógeno sin modificar el ADN de ningún organismo. Son niveles y lógicas de intervención completamente distintos."
-  },
-  {
-    cat:"Comparando ambos", cls:"cat-ambos",
-    q:"El trigo HB4 está patentado por una empresa privada. Los bioinoculantes fueron desarrollados principalmente por Embrapa, institución pública de Brasil. Pensando en lo que vimos con el caso Percy Schmeiser, ¿qué diferencia podría implicar eso para las agricultoras y los agricultores?",
-    opts:["Ninguna — en ambos casos el productor puede usar la tecnología completamente libre de costo","Con tecnología patentada por una empresa el productor depende de ella para acceder cada temporada; con desarrollos públicos esa dependencia es en principio menor","Los desarrollos públicos son siempre más caros porque las instituciones no tienen escala","La patente protege al productor, no a la empresa"],
-    c:1,
-    exp:"El caso Schmeiser mostró que una patente puede generar dependencia incluso sin que el productor lo haya elegido. Un desarrollo público no genera ese tipo de dependencia corporativa — aunque los productos comerciales específicos sí tienen marcas registradas. La pregunta de fondo es la misma que vimos el lunes: ¿quién controla la tecnología y quién depende de quién?"
-  }
+const ALL_Q=[
+  {cat:"Clase del lunes",cls:"cat-lunes",q:"En el paquete tecnológico soja RR + glifosato, ¿qué hace exactamente el gen bacteriano que se insertó en la soja?",opts:["Hace que la soja produzca su propio herbicida para matar malezas","Codifica una versión de la enzima EPSPS que el glifosato no puede inhibir eficientemente","Le permite a la soja fijar nitrógeno del aire sin necesitar bacterias","Aumenta el rendimiento de la soja en condiciones de sequía"],c:1,exp:"La soja RR lleva un gen bacteriano que codifica una versión modificada de la enzima EPSPS con menor afinidad por el glifosato. Así, cuando se fumiga el campo, las malezas mueren pero la soja sobrevive."},
+  {cat:"Clase del lunes",cls:"cat-lunes",q:"¿Por qué se usó biobalística para transformar el trigo HB4 y no Agrobacterium tumefaciens?",opts:["Porque la biobalística es más barata y rápida en cualquier planta","Porque el trigo es una monocotiledónea y su pared celular es menos susceptible a la infección bacteriana natural","Porque Agrobacterium solo funciona con soja","Porque la biobalística permite insertar más genes en un solo proceso"],c:1,exp:"Agrobacterium funciona bien en dicotiledóneas como la soja, pero en monocotiledóneas como el trigo la pared celular dificulta la infección bacteriana. La biobalística dispara físicamente partículas de oro o tungsteno recubiertas con ADN sobre el tejido vegetal, sin necesitar infección."},
+  {cat:"Trigo HB4",cls:"cat-trigo",q:"El trigo IND-ØØ412-7 tiene dos fenotipos conferidos por modificación genética. Un fenotipo es una característica observable que resulta de la expresión de un gen. ¿Cuáles son los dos fenotipos de este trigo?",opts:["Resistencia a insectos y mayor contenido proteico","Tolerancia a sequía y tolerancia al herbicida glufosinato de amonio","Resistencia al glifosato y mayor rendimiento en suelos salinos","Tolerancia a bajas temperaturas y resistencia a hongos"],c:1,exp:"El trigo HB4 tiene dos fenotipos: tolerancia a sequía (gen HaHB4, del girasol) y tolerancia al herbicida glufosinato de amonio (gen bar, de la bacteria Streptomyces hygroscopicus). Cada gen produce una proteína distinta que genera cada característica observable."},
+  {cat:"Trigo HB4",cls:"cat-trigo",q:"¿Cómo logra el gen HaHB4 que el trigo tolere la sequía según el texto?",opts:["Hace que la planta almacene más agua en sus tejidos durante la lluvia","Participa en vías de señalización que regulan osmoprotectores, retrasan el cierre estomático y modulan fitohormonas como el etileno y el ácido abscísico","Aumenta la longitud de las raíces para alcanzar capas más profundas de agua","Reduce la cantidad de hojas para disminuir la pérdida de agua por transpiración"],c:1,exp:"HaHB4 es un factor de transcripción: una proteína que regula la activación de otros genes. Bajo estrés hídrico activa una cascada de respuestas: induce osmoprotectores, reduce la sensibilidad al etileno, retrasa el cierre estomático e interactúa con fitohormonas. El resultado es que la planta sigue fotosintéticamente activa con menos agua disponible."},
+  {cat:"Trigo HB4",cls:"cat-trigo",q:"El documento de la CONABIA fue producido por la institución estatal que evalúa la liberación de OGMs, usando información presentada por la empresa solicitante. ¿Qué posición te parece más razonable a la hora de analizar sus conclusiones?",opts:["La CONABIA (institución estatal) aprobó el producto, así que ya pasó todos los controles necesarios y no hace falta preguntarse nada más","La empresa que quiere vender el producto aportó la información que la CONABIA usó para aprobarlo. ¿Eso podría influir en qué se estudió y qué no?","Como la empresa tiene interés en que se apruebe su producto, todo lo que dice el documento es mentira","La ciencia siempre es objetiva sin importar quién la financia o produce"],c:1,exp:"Leer críticamente una fuente no significa rechazarla ni aceptarla sin más — significa entender desde dónde habla. Que la evaluación use información del solicitante no invalida el documento, pero sí invita a preguntarse qué se estudió, qué no, y si hubo otras voces que evaluaron lo mismo."},
+  {cat:"Bioinoculantes",cls:"cat-bio",q:"¿Qué función cumple Bradyrhizobium diazoefficiens en la co-inoculación para soja?",opts:["Produce fitohormonas que estimulan el desarrollo de las raíces","Fija nitrógeno atmosférico en nódulos de las raíces, proveyendo ese nutriente directamente a la planta","Protege las raíces de hongos patógenos del suelo","Aumenta la absorción de fósforo y potasio"],c:1,exp:"Bradyrhizobium forma nódulos en las raíces de la soja donde fija el nitrógeno atmosférico (N₂) convirtiéndolo en amoniaco (NH₃) que la planta puede absorber. A cambio, la planta le provee carbono a la bacteria. Es una simbiosis: ambos se benefician."},
+  {cat:"Bioinoculantes",cls:"cat-bio",q:"El paper dice que combinar Bradyrhizobium y Azospirillum es 'industrialmente desafiante'. ¿Cuál es el desafío concreto que describe el texto?",opts:["Las dos bacterias se atacan entre sí cuando se mezclan","Tienen diferentes requerimientos de fuentes de carbono y tasas de crecimiento distintas, lo que dificulta cultivarlas juntas","Los agricultores no confían en productos con dos microorganismos","El costo de producir cada bacteria por separado es demasiado alto"],c:1,exp:"Bradyrhizobium crece mejor con manitol y glicerol; Azospirillum prefiere ácido maleico y málico. Además Bradyrhizobium crece lento y Azospirillum rápido — si se mezclan al mismo tiempo, Azospirillum domina. La solución fue una formulación compatible e inocular Azospirillum al tercer día de crecimiento de Bradyrhizobium."},
+  {cat:"Bioinoculantes",cls:"cat-bio",q:"En los ensayos a campo, los resultados variaron según el historial del suelo. En sitios como Londrina, con alta población naturalizada de Bradyrhizobium, ¿qué ocurrió con el inoculante compuesto?",opts:["Dio resultados mucho mejores que en cualquier otro sitio","No hubo diferencia estadística con el control no inoculado — la bacteria nativa ya proveía suficiente nitrógeno","El inoculante compuesto fue peor que el fertilizante nitrogenado sintético","Las bacterias del inoculante no sobrevivieron en ese suelo"],c:1,exp:"Cuando el suelo ya tiene abundante Bradyrhizobium nativo y eficiente, agregar más no marca diferencia. Esto muestra que el bioinsumo no tiene efecto universal — su eficacia depende del contexto del suelo. En suelos vírgenes de soja como Lutécia y Paranavaí, el efecto fue mucho mayor."},
+  {cat:"Comparando ambos",cls:"cat-ambos",q:"Tanto el trigo HB4 como los bioinoculantes buscan mejorar la producción agrícola pero intervienen de forma muy distinta. ¿Cuál es la diferencia más fundamental entre los dos enfoques?",opts:["Uno es argentino y el otro es brasileño","Uno modifica el genoma del organismo vegetal; el otro trabaja con microorganismos del suelo que potencian procesos naturales","Uno sirve para el trigo y el otro solo para la soja","Uno fue aprobado por el Estado y el otro no tiene regulación"],c:1,exp:"El trigo HB4 interviene en el genoma de la planta insertando genes de otras especies. Los bioinoculantes trabajan con microorganismos que ya existen en la naturaleza, potenciando procesos biológicos como la fijación de nitrógeno sin modificar el ADN de ningún organismo. Son niveles y lógicas de intervención completamente distintos."},
+  {cat:"Comparando ambos",cls:"cat-ambos",q:"La soja RR está patentada por Monsanto (hoy Bayer). Los bioinoculantes fueron desarrollados principalmente por Embrapa, institución pública de Brasil. ¿Qué diferencia podría implicar eso para las agricultoras y los agricultores que usan cada tecnología?",opts:["Ninguna — en ambos casos el productor puede usar la tecnología completamente libre de costo","Con la soja RR el productor depende de Monsanto/Bayer para acceder a la semilla cada temporada; con los bioinoculantes esa dependencia corporativa es en principio menor","Los desarrollos públicos son siempre más caros porque las instituciones no tienen escala","La patente protege al productor, no a la empresa"],c:1,exp:"Cuando una tecnología está patentada por una corporación, el productor depende de ella para acceder cada temporada. Un desarrollo público no genera ese mismo tipo de dependencia corporativa — aunque los productos comerciales específicos sí tienen marcas registradas. Es la misma tensión que vimos el lunes: ¿quién controla la tecnología y quién depende de quién?"}
 ];
-
-const STORAGE_KEY='biocuest2_played';
+ 
+const SK='biocuest2_played';
 let player="",current=0,score=0,answered=false,deck=[];
-
-function getPlayed(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');}catch(e){return[];}}
-function markPlayed(name){try{const p=getPlayed();p.push(name.toUpperCase().trim());localStorage.setItem(STORAGE_KEY,JSON.stringify(p));}catch(e){}}
-function hasPlayed(name){return getPlayed().includes(name.toUpperCase().trim());}
+function getPlayed(){try{return JSON.parse(localStorage.getItem(SK)||'[]');}catch(e){return[];}}
+function markPlayed(n){try{const p=getPlayed();p.push(n.toUpperCase().trim());localStorage.setItem(SK,JSON.stringify(p));}catch(e){}}
+function hasPlayed(n){return getPlayed().includes(n.toUpperCase().trim());}
 function shuffle(a){return[...a].sort(()=>Math.random()-.5)}
-
+ 
 function startGame(){
   const n=document.getElementById('name-input').value.trim();
   if(!n){document.getElementById('name-input').focus();return;}
@@ -220,7 +180,6 @@ function startGame(){
   document.getElementById('screen-game').style.display='block';
   render();
 }
-
 function render(){
   if(current>=deck.length){showEnd();return;}
   const q=deck[current];answered=false;
@@ -241,7 +200,6 @@ function render(){
     opts.appendChild(b);
   });
 }
-
 function answer(idx,btn){
   if(answered)return;answered=true;
   const q=deck[current];
@@ -257,7 +215,6 @@ function answer(idx,btn){
   }
   document.getElementById('btn-next').style.display='block';
 }
-
 function showEnd(){
   document.getElementById('screen-game').style.display='none';
   document.getElementById('screen-end').style.display='block';
@@ -273,7 +230,6 @@ function showEnd(){
   document.getElementById('end-msg').textContent=msg;
   document.getElementById('code-box').textContent='BIOCUEST2 · '+player.toUpperCase()+' ('+score+'/'+deck.length+')';
 }
-
 document.getElementById('btn-start').onclick=startGame;
 document.getElementById('name-input').addEventListener('keydown',e=>{if(e.key==='Enter')startGame();});
 document.getElementById('btn-next').onclick=()=>{current++;render();};
