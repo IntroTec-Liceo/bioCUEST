@@ -1,1 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>bioCUEST 3</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f9f9f7; min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; padding: 1.5rem 1rem; color: #1a1a1a; }
+  #app { width: 100%; max-width: 600px; }
+  #screen-name { background: #fff; border-radius: 12px; padding: 1.5rem; border: 0.5px solid #e0e0d8; }
+  .logo { font-size: 24px; font-weight: 500; color: #1a1a1a; margin-bottom: .25rem; }
+  .logo span { color: #1D9E75; }
+  .logo .num { font-size: 15px; font-weight: 400; color: #888; margin-left: 3px; }
+  #screen-name p { font-size: 14px; color: #666; line-height: 1.6; margin-bottom: 1.25rem; margin-top: .5rem; }
+  #name-row { display: flex; gap: 8px; }
+  #name-input { flex: 1; padding: 9px 13px; border: 0.5px solid #d0d0c8; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #fafaf8; transition: border-color .2s; }
+  #name-input:focus { border-color: #1D9E75; background: #fff; }
+  #btn-start { padding: 9px 18px; background: #1D9E75; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-family: inherit; cursor: pointer; transition: background .2s; white-space: nowrap; }
+  #btn-start:hover { background: #178a63; }
+  #name-error { font-size: 13px; color: #E24B4A; margin-top: 8px; display: none; }
+  #screen-game { display: none; }
+  .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+  .logo-sm { font-size: 15px; font-weight: 500; color: #1a1a1a; }
+  .logo-sm span { color: #1D9E75; }
+  .pts-badge { background: #1D9E75; color: #fff; font-size: 12px; font-weight: 500; padding: 3px 11px; border-radius: 20px; }
+  #progress-bar { height: 3px; background: #e8e8e4; border-radius: 4px; margin-bottom: 1.25rem; overflow: hidden; }
+  #progress-fill { height: 100%; background: #1D9E75; border-radius: 4px; transition: width .4s; }
+  .q-meta { display: flex; align-items: center; gap: 8px; margin-bottom: .75rem; }
+  .q-num-label { font-size: 12px; color: #999; }
+  #cat-badge { font-size: 11px; font-weight: 500; padding: 2px 9px; border-radius: 10px; text-transform: uppercase; letter-spacing: .04em; }
+  .cat-inocuidad { background: #EAF3DE; color: #27500A; }
+  .cat-conservacion { background: #EEEDFE; color: #26215C; }
+  .cat-agua { background: #E6F1FB; color: #0C447C; }
+  #q-card { background: #fff; border: 0.5px solid #e0e0d8; border-radius: 10px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; }
+  #q-text { font-size: 15px; font-weight: 500; line-height: 1.6; color: #1a1a1a; }
+  #options { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 1rem; }
+  .opt { background: #fafaf8; border: 0.5px solid #e0e0d8; border-radius: 8px; padding: 9px 13px; font-size: 13px; cursor: pointer; text-align: left; color: #1a1a1a; line-height: 1.4; font-family: inherit; transition: background .15s, border-color .15s; }
+  .opt:hover:not(:disabled) { background: #f2f2ee; border-color: #c8c8c0; }
+  .opt.correct { background: #EAF3DE; border-color: #639922; color: #27500A; }
+  .opt.wrong { background: #FCEBEB; border-color: #E24B4A; color: #501313; }
+  .opt.reveal { background: #EAF3DE; border-color: #639922; color: #27500A; }
+  #feedback { font-size: 13px; line-height: 1.6; color: #555; padding: 10px 13px; border-radius: 8px; background: #fafaf8; border: 0.5px solid #e0e0d8; margin-bottom: 1rem; min-height: 48px; }
+  #btn-next { width: 100%; padding: 10px; border: 0.5px solid #d0d0c8; border-radius: 8px; background: #fff; font-size: 14px; cursor: pointer; color: #1a1a1a; font-family: inherit; display: none; transition: background .15s; }
+  #btn-next:hover { background: #f2f2ee; }
+  #screen-end { display: none; background: #fff; border-radius: 12px; padding: 1.5rem; border: 0.5px solid #e0e0d8; text-align: center; }
+  #end-player { font-size: 13px; color: #999; margin-bottom: .2rem; }
+  #end-score { font-size: 44px; font-weight: 500; color: #1D9E75; margin: .4rem 0; }
+  #end-title { font-size: 18px; font-weight: 500; color: #1a1a1a; }
+  @media (max-width: 420px) { #options { grid-template-columns: 1fr; } body { padding: 1rem .75rem; } }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="screen-name">
+    <div class="logo">bio<span>CUEST</span><span class="num">3</span></div>
+    <p>Relevamiento de saberes sobre inocuidad alimentaria y métodos de conservación. Ingresá tu nombre y apellido — solo podés jugarlo una vez. Tu resultado se envía automáticamente.</p>
+    <div id="name-row">
+      <input type="text" id="name-input" placeholder="Nombre y apellido" maxlength="40" />
+      <button id="btn-start">Empezar</button>
+    </div>
+    <div id="name-error">Ya jugaste con ese nombre. Solo se permite un intento por persona.</div>
+  </div>
 
+  <div id="screen-game">
+    <div class="top-bar">
+      <span class="logo-sm">bio<span>CUEST</span> 3</span>
+      <span class="pts-badge" id="pts-badge">0 pts</span>
+    </div>
+    <div id="progress-bar"><div id="progress-fill" style="width:10%"></div></div>
+    <div class="q-meta">
+      <span class="q-num-label" id="q-num-label">1 / 10</span>
+      <span id="cat-badge"></span>
+    </div>
+    <div id="q-card"><p id="q-text"></p></div>
+    <div id="options"></div>
+    <div id="feedback">Seleccioná una respuesta para continuar.</div>
+    <button id="btn-next">Siguiente →</button>
+  </div>
+
+  <div id="screen-end">
+    <div class="logo" style="margin-bottom:1rem">bio<span>CUEST</span> 3</div>
+    <div id="end-player"></div>
+    <div id="end-score"></div>
+    <div id="end-title"></div>
+  </div>
+
+</div>
+<script>
+const ALL_Q=[
+  {cat:"Inocuidad alimentaria",cls:"cat-inocuidad",q:"¿Qué significa que un alimento sea \"inocuo\"?",opts:["Que tiene muchos nutrientes y es saludable","Que fue producido sin agroquímicos","Que no causa daño a la salud de quien lo consume","Que tiene buen sabor y olor"],c:2,exp:"Un alimento inocuo es aquel que está libre de peligros para la salud. Eso incluye ausencia de microorganismos patógenos, toxinas y contaminantes químicos. Un alimento puede ser muy nutritivo pero no inocuo si está contaminado — son conceptos distintos."},
+  {cat:"Inocuidad alimentaria",cls:"cat-inocuidad",q:"Un alimento puede verse y oler bien y aun así causar enfermedades. ¿Por qué?",opts:["Porque algunos microorganismos patógenos no alteran el aspecto ni el olor del alimento","Porque los nutrientes se pierden con el tiempo aunque no se note","Porque el color artificial de los alimentos procesados es tóxico","Porque el frío destruye las vitaminas sin cambiar el sabor"],c:0,exp:"La contaminación microbiana no siempre produce cambios visibles, olfativos o de sabor. Bacterias como <em>Salmonella</em> o <em>Listeria</em> pueden estar presentes en concentraciones peligrosas sin alterar las características del alimento. Por eso el aspecto normal no garantiza que sea seguro."},
+  {cat:"Inocuidad alimentaria",cls:"cat-inocuidad",q:"¿Cuál de estas condiciones favorece más el crecimiento de microorganismos en un alimento?",opts:["Temperatura baja, poca agua disponible y ambiente ácido (como el vinagre)","Ausencia de luz, temperatura baja y envase cerrado","Temperatura muy alta, sin agua y mucha sal","Temperatura ambiente, humedad alta y ambiente neutro (como el agua)"],c:3,exp:"Los microorganismos crecen mejor cuando tienen agua disponible, temperatura cercana a los 37°C y un ambiente neutro. Los métodos de conservación apuntan exactamente a modificar esas condiciones: bajar la temperatura, eliminar agua o acidificar el medio son estrategias para frenar su crecimiento."},
+  {cat:"Métodos de conservación",cls:"cat-conservacion",q:"Una lata de tomates puede durar años sin refrigeración. Para lograrlo, el contenido se somete a un proceso llamado esterilización con vapor saturado de agua a 121°C. ¿Por qué se necesitan esas condiciones?",opts:["Porque a esa temperatura el alimento cambia de color indicando que está listo para envasar","Porque algunos microorganismos forman esporas — estructuras de resistencia — que sobreviven al agua hirviendo a 100°C y solo se destruyen a temperaturas superiores como 121°C","Porque el vapor mejora el sabor sin destruir nutrientes","Porque por debajo de 100°C el calor no tiene ningún efecto sobre los microorganismos"],c:1,exp:"Algunos microorganismos como <em>Clostridium botulinum</em> forman esporas que resisten el hervido a 100°C. La esterilización con vapor saturado de agua a 121°C destruye incluso esas formas resistentes, garantizando que el producto envasado sea microbiológicamente estable a temperatura ambiente."},
+  {cat:"Métodos de conservación",cls:"cat-conservacion",q:"La leche en polvo y los huevos deshidratados se conservan sin refrigeración, pero una vez que los reconstituís con agua deben usarse rápidamente y guardarse en la heladera. ¿Qué explica ese cambio?",opts:["Porque el polvo tiene conservantes que se disuelven al agregar agua y dejan de funcionar","Porque la temperatura del agua destruye las proteínas del alimento haciéndolo perecedero","Porque al agregar agua se restituye la condición que permite que los microorganismos presentes vuelvan a crecer y multiplicarse","Porque al abrir el envase entra aire y eso activa las bacterias"],c:2,exp:"La deshidratación conserva los alimentos eliminando el agua disponible — sin agua los microorganismos no pueden llevar a cabo sus procesos metabólicos ni reproducirse. Al reconstituir con agua, esa condición se restaura y los microorganismos retoman su actividad. Por eso deben tratarse como alimentos frescos."},
+  {cat:"Métodos de conservación",cls:"cat-conservacion",q:"El yogur se obtiene cuando bacterias transforman la lactosa en ácido láctico. Eso baja el pH del producto — es decir, lo vuelve más ácido. ¿Por qué ese cambio lo preserva por más tiempo?",opts:["Porque la fermentación genera calor que destruye los patógenos durante la producción","Porque al volverse ácido el yogur pierde el agua disponible que necesitan los microorganismos","Porque el ácido láctico es tóxico para los humanos y eso indica que el alimento está protegido","Porque la mayoría de los microorganismos patógenos no pueden crecer en ambientes ácidos — el pH bajo inhibe su metabolismo y reproducción"],c:3,exp:"La acidificación aprovecha la sensibilidad de los microorganismos patógenos al pH bajo. Las bacterias lácticas producen ácido láctico que baja el pH del medio, creando condiciones hostiles para otros microorganismos. Este principio también se aplica en fermentados en general."},
+  {cat:"Métodos de conservación",cls:"cat-conservacion",q:"La \"zona de peligro\" para el crecimiento bacteriano se encuentra entre 5°C y 60°C. ¿Qué implica eso para la conservación de alimentos en la heladera y el freezer?",opts:["Que mantener los alimentos por debajo de 5°C retrasa o detiene el crecimiento bacteriano, reduciendo el riesgo de contaminación","Que la heladera y el freezer matan las bacterias presentes en los alimentos","Que los alimentos congelados no pueden contener microorganismos patógenos","Que cualquier temperatura fuera de esa zona esteriliza completamente el alimento"],c:0,exp:"El frío no mata las bacterias — las detiene. Por debajo de 5°C el crecimiento bacteriano se retrasa o detiene, y a temperaturas de congelación se suspende casi completamente. Sin embargo, al descongelar un alimento los microorganismos pueden retomar su actividad, por eso es importante no romper la cadena de frío."},
+  {cat:"Métodos de conservación",cls:"cat-conservacion",q:"El sorbato de potasio es un aditivo autorizado por el Código Alimentario Argentino que figura en las etiquetas de alimentos como mermeladas, jugos y productos lácteos. No aporta energía ni componentes estructurales al organismo. ¿Cuál es su función en el alimento?",opts:["Reemplazar los nutrientes que se pierden durante el procesamiento industrial","Actuar como fuente de potasio biodisponible para el consumidor, aportando ese mineral a la dieta","Mejorar el sabor y aroma del producto compensando las pérdidas del procesamiento térmico","Interactuar químicamente con el medio del alimento para inhibir el crecimiento de hongos, levaduras y bacterias sin modificar su valor nutricional"],c:3,exp:"Los conservantes químicos como el sorbato de potasio son aditivos tecnológicos — su función es exclusivamente prolongar la vida útil del alimento inhibiendo el desarrollo microbiano. No nutren ni mejoran el sabor. El hecho de que contengan potasio en su fórmula no los convierte en fuente nutricional de ese mineral, ya que las concentraciones utilizadas son muy pequeñas."},
+  {cat:"Agua y laboratorio",cls:"cat-agua",q:"El arsénico es un elemento químico que puede estar presente de forma natural en aguas subterráneas de varias regiones de Argentina. ¿Por qué su presencia en el agua de consumo representa un problema de salud pública?",opts:["Porque el arsénico le da un sabor amargo al agua que la hace inaceptable para el consumo","Porque la exposición prolongada al arsénico en el agua de consumo se asocia a enfermedades crónicas graves","Porque el arsénico es visible a simple vista y tiñe el agua de un color característico","Porque el arsénico destruye el cloro utilizado para potabilizar el agua dejándola sin protección"],c:1,exp:"El arsénico es uno de los contaminantes químicos más relevantes en el agua subterránea de Argentina, especialmente en la región pampeana y el norte del país. A diferencia de los contaminantes microbiológicos, no altera el aspecto ni el olor del agua. Su ingesta crónica en concentraciones superiores a las permitidas se asocia a enfermedades graves."},
+  {cat:"Agua y laboratorio",cls:"cat-agua",q:"El Código Alimentario Argentino (Art. 6°) define que un alimento contaminado es aquel que contiene agentes vivos riesgosos para la salud. Si el agua de una canilla tuviera bacterias patógenas, ¿cómo podría detectarse esa contaminación?",opts:["Siempre por el color y olor — el agua contaminada inevitablemente se ve turbia y huele mal","Probando el sabor — el agua contaminada tiene siempre un sabor amargo característico","Mediante análisis de laboratorio — la contaminación microbiana no siempre es visible ni detectable a simple vista, aunque la turbidimetría puede dar indicios de presencia de partículas","Porque las bacterias patógenas siempre forman una capa visible en la superficie del agua"],c:2,exp:"La contaminación microbiana del agua generalmente no produce cambios visibles, olfativos ni de sabor. La turbidimetría puede indicar presencia de partículas en suspensión, pero no identifica específicamente bacterias patógenas. Para confirmar contaminación microbiológica se requieren análisis de laboratorio específicos."}
+];
+
+const SK='biocuest3_played';
+
+
+let player="",current=0,score=0,answered=false,deck=[];
+
+function getPlayed(){try{return JSON.parse(localStorage.getItem(SK)||'[]');}catch(e){return[];}}
+function markPlayed(n){try{const p=getPlayed();p.push(n.toUpperCase().trim());localStorage.setItem(SK,JSON.stringify(p));}catch(e){}}
+function hasPlayed(n){return getPlayed().includes(n.toUpperCase().trim());}
+function shuffle(a){return[...a].sort(()=>Math.random()-.5)}
+
+function startGame(){
+  const n=document.getElementById('name-input').value.trim();
+  if(!n){document.getElementById('name-input').focus();return;}
+  const err=document.getElementById('name-error');
+  if(hasPlayed(n)){err.style.display='block';return;}
+  err.style.display='none';
+  player=n;deck=shuffle(ALL_Q);current=0;score=0;answered=false;
+  document.getElementById('screen-name').style.display='none';
+  document.getElementById('screen-game').style.display='block';
+  render();
+}
+
+function render(){
+  if(current>=deck.length){showEnd();return;}
+  const q=deck[current];answered=false;
+  document.getElementById('q-num-label').textContent=(current+1)+' / '+deck.length;
+  document.getElementById('pts-badge').textContent=score+' pts';
+  document.getElementById('progress-fill').style.width=((current+1)/deck.length*100)+'%';
+  const badge=document.getElementById('cat-badge');
+  badge.textContent=q.cat;badge.className=q.cls;
+  document.getElementById('q-text').textContent=q.q;
+  document.getElementById('feedback').textContent='Seleccioná una respuesta para continuar.';
+  document.getElementById('btn-next').style.display='none';
+  const correctText=q.opts[q.c];
+  const shuffledOpts=[...q.opts].sort(()=>Math.random()-.5);
+  const newCorrectIdx=shuffledOpts.indexOf(correctText);
+  const opts=document.getElementById('options');
+  opts.innerHTML='';
+  shuffledOpts.forEach((o,i)=>{
+    const b=document.createElement('button');
+    b.className='opt';b.textContent=o;
+    b.onclick=()=>answerShuffled(i,b,newCorrectIdx);
+    opts.appendChild(b);
+  });
+}
+
+function answerShuffled(idx,btn,correctIdx){
+  if(answered)return;answered=true;
+  const q=deck[current];
+  document.querySelectorAll('.opt').forEach(b=>b.disabled=true);
+  if(idx===correctIdx){
+    btn.classList.add('correct');score++;
+    document.getElementById('pts-badge').textContent=score+' pts';
+    document.getElementById('feedback').innerHTML='<strong>¡Correcto!</strong> '+q.exp;
+  } else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('.opt')[correctIdx].classList.add('reveal');
+    document.getElementById('feedback').innerHTML='<strong>No es esa.</strong> '+q.exp;
+  }
+  document.getElementById('btn-next').style.display='block';
+}
+
+function submitToForms(nombre, puntaje){
+  fetch('https://formspree.io/f/xjgdalvr', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+    body: JSON.stringify({nombre: nombre, puntaje: puntaje})
+  });
+}
+
+function showEnd(){
+  document.getElementById('screen-game').style.display='none';
+  document.getElementById('screen-end').style.display='block';
+  markPlayed(player);
+  const pct=score/deck.length;
+  let title;
+  if(pct>=.9){title='Excelente punto de partida';}
+  else if(pct>=.6){title='Buen punto de partida';}
+  else{title='Buen comienzo';}
+  document.getElementById('end-player').textContent=player;
+  document.getElementById('end-score').textContent=score+'/'+deck.length;
+  document.getElementById('end-title').textContent=title;
+  submitToForms(player, score+'/'+deck.length);
+}
+
+document.getElementById('btn-start').onclick=startGame;
+document.getElementById('name-input').addEventListener('keydown',e=>{if(e.key==='Enter')startGame();});
+document.getElementById('btn-next').onclick=()=>{current++;render();};
+</script>
+</body>
+</html>
