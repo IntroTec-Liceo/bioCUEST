@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>bioCUEST 4</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f9f9f7; min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; padding: 1.5rem 1rem; color: #1a1a1a; }
+  #app { width: 100%; max-width: 600px; }
+
+  /* PANTALLA NOMBRE */
+  #screen-name { background: #fff; border-radius: 12px; padding: 1.5rem; border: 0.5px solid #e0e0d8; }
+  .logo { font-size: 24px; font-weight: 500; color: #1a1a1a; margin-bottom: .25rem; }
+  .logo span { color: #1D9E75; }
+  .logo .num { font-size: 15px; font-weight: 400; color: #888; margin-left: 4px; }
+  #screen-name p { font-size: 14px; color: #666; line-height: 1.6; margin: .5rem 0 1.25rem; }
+  #name-row { display: flex; gap: 8px; }
+  #name-input { flex: 1; padding: 9px 13px; border: 0.5px solid #d0d0c8; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #fafaf8; transition: border-color .2s; }
+  #name-input:focus { border-color: #1D9E75; background: #fff; }
+  #btn-start { padding: 9px 18px; background: #1D9E75; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-family: inherit; cursor: pointer; transition: background .2s; white-space: nowrap; }
+  #btn-start:hover { background: #179068; }
+
+  /* PANTALLA JUEGO */
+  #screen-game { display: none; }
+  .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: .75rem; }
+  .top-bar .logo { font-size: 18px; }
+  #pts-badge { background: #1D9E75; color: #fff; border-radius: 20px; padding: 3px 12px; font-size: 13px; font-weight: 500; }
+  .progress-wrap { height: 4px; background: #e8e8e4; border-radius: 2px; margin-bottom: 1rem; }
+  #progress-fill { height: 4px; background: #1D9E75; border-radius: 2px; transition: width .4s; width: 10%; }
+  .card { background: #fff; border-radius: 12px; padding: 1.25rem; border: 0.5px solid #e0e0d8; margin-bottom: .75rem; }
+  .card-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: .75rem; }
+  #q-num-label { font-size: 12px; color: #999; }
+  #cat-badge { font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 20px; }
+  .cat-bio { background: #e8f5f0; color: #1D9E75; }
+  .cat-tec { background: #e8f0fb; color: #2E5496; }
+  .cat-loc { background: #fef3e2; color: #b45309; }
+  #q-text { font-size: 15px; line-height: 1.55; font-weight: 500; }
+  #options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 1rem; }
+  .opt { padding: 10px 12px; border: 0.5px solid #d0d0c8; border-radius: 8px; background: #fafaf8; font-size: 13px; font-family: inherit; cursor: pointer; text-align: left; line-height: 1.4; transition: border-color .15s, background .15s; }
+  .opt:hover:not(:disabled) { border-color: #1D9E75; background: #f0faf6; }
+  .opt.correct { border-color: #1D9E75; background: #e8f5f0; color: #155d43; }
+  .opt.wrong { border-color: #e05252; background: #fdf0f0; color: #b83232; }
+  .opt.reveal { border-color: #1D9E75; background: #e8f5f0; color: #155d43; }
+  .opt:disabled { cursor: default; }
+  /* VF layout — una sola columna */
+  #options.vf-mode { grid-template-columns: 1fr 1fr; }
+  #feedback { font-size: 13px; color: #555; line-height: 1.5; margin-top: .75rem; min-height: 2.5rem; }
+  #btn-next { display: none; width: 100%; padding: 10px; background: #1D9E75; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-family: inherit; cursor: pointer; margin-top: .5rem; transition: background .2s; }
+  #btn-next:hover { background: #179068; }
+
+  /* PANTALLA FINAL */
+  #screen-end { display: none; background: #fff; border-radius: 12px; padding: 1.5rem; border: 0.5px solid #e0e0d8; text-align: center; }
+  #screen-end .logo { margin-bottom: 1rem; }
+  #end-score-big { font-size: 48px; font-weight: 700; color: #1D9E75; line-height: 1; }
+  #end-score-label { font-size: 13px; color: #999; margin-top: .25rem; margin-bottom: .5rem; }
+  #end-player { font-size: 17px; font-weight: 600; margin-bottom: .25rem; }
+  #end-title { font-size: 15px; font-weight: 600; color: #1D9E75; margin: .75rem 0 .25rem; }
+  #end-msg { font-size: 13px; color: #666; line-height: 1.5; margin-bottom: 1rem; }
+  #send-status { font-size: 12px; color: #aaa; margin-top: .5rem; min-height: 1.2rem; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- PANTALLA NOMBRE -->
+  <div id="screen-name">
+    <div class="logo">bio<span>CUES</span>T <span class="num">4</span></div>
+    <p>Fermentaciones en la industria alimentaria. Ingresá tu nombre y apellido para empezar.</p>
+    <div id="name-row">
+      <input id="name-input" type="text" placeholder="Nombre y apellido" autocomplete="off" />
+      <button id="btn-start">Empezar</button>
+    </div>
+  </div>
+
+  <!-- PANTALLA JUEGO -->
+  <div id="screen-game">
+    <div class="top-bar">
+      <div class="logo">bio<span>CUES</span>T <span class="num">4</span></div>
+      <div id="pts-badge">0 pts</div>
+    </div>
+    <div class="progress-wrap"><div id="progress-fill"></div></div>
+    <div class="card">
+      <div class="card-meta">
+        <span id="q-num-label">1 / 10</span>
+        <span id="cat-badge" class="cat-bio">Biología</span>
+      </div>
+      <div id="q-text"></div>
+      <div id="options"></div>
+      <div id="feedback">Seleccioná una respuesta para continuar.</div>
+      <button id="btn-next">Siguiente →</button>
+    </div>
+  </div>
+
+  <!-- PANTALLA FINAL -->
+  <div id="screen-end">
+    <div class="logo">bio<span>CUES</span>T <span class="num">4</span></div>
+    <div id="end-score-big"></div>
+    <div id="end-score-label">de 10 preguntas</div>
+    <div id="end-player"></div>
+    <div id="end-title"></div>
+    <div id="end-msg"></div>
+    <div id="send-status">Enviando resultado…</div>
+  </div>
+
+</div>
+<script>
+// ─── PREGUNTAS ───────────────────────────────────────────────────────────────
+const QUESTIONS = [
+  {
+    cat: 'Cotidiano', cls: 'cat-loc',
+    q: '¿Qué proceso comparten el yogur, la cerveza y el pan que los hace diferentes a otros alimentos?',
+    opts: [
+      'Se calientan a alta temperatura para conservarse',
+      'Son producidos por microorganismos que transforman azúcares',
+      'Se elaboran exclusivamente con bacterias',
+      'Requieren refrigeración desde el primer momento'
+    ],
+    c: 1,
+    exp: 'En los tres casos, microorganismos (levaduras o bacterias) transforman azúcares del sustrato para obtener energía, generando productos que dan al alimento sus características.'
+  },
+  {
+    cat: 'Biología', cls: 'cat-bio',
+    q: 'La glucólisis produce piruvato. ¿Qué le pasa a ese piruvato cuando no hay oxígeno disponible?',
+    opts: [
+      'Se acumula en la célula sin transformarse',
+      'Se convierte directamente en glucosa nuevamente',
+      'Es transformado en otros compuestos para que la célula pueda seguir produciendo energía',
+      'Se elimina como desecho sin ningún uso'
+    ],
+    c: 2,
+    exp: 'Eso es exactamente la fermentación: la célula transforma el piruvato (en etanol, ácido láctico u otros compuestos) para regenerar el NAD⁺ y poder seguir funcionando sin oxígeno.'
+  },
+  {
+    cat: 'Biología', cls: 'cat-bio',
+    q: '¿Qué microorganismo transforma el azúcar en el pan y también se usa para hacer cerveza artesanal tipo ale?',
+    opts: [
+      'Lactobacillus acidophilus',
+      'Acetobacter aceti',
+      'Saccharomyces cerevisiae',
+      'Penicillium roqueforti'
+    ],
+    c: 2,
+    exp: 'Saccharomyces cerevisiae es la levadura de panadería y también la responsable de las cervezas ale. Las cervezas lager usan S. pastorianus, que fermenta a temperaturas más bajas.'
+  },
+  {
+    cat: 'Cotidiano', cls: 'cat-loc',
+    q: '¿Por qué el pan es esponjoso?',
+    opts: [
+      'Porque el gluten absorbe agua y se expande con el calor',
+      'Porque la levadura produce CO₂ que queda atrapado en el gluten',
+      'Porque el almidón se convierte en burbujas de vapor',
+      'Porque el azúcar se derrite y crea cámaras de aire'
+    ],
+    c: 1,
+    exp: 'La levadura fermenta el azúcar de la harina y produce CO₂. Ese gas queda atrapado en la red de gluten (proteínas de la harina mezcladas con agua), haciendo la masa esponjosa.'
+  },
+  {
+    cat: 'Tecnología', cls: 'cat-tec',
+    q: '¿Por qué el yogur dura más días en la heladera que la leche sin fermentar?',
+    opts: [
+      'Porque se le agrega azúcar como conservante',
+      'Porque las bacterias producen ácido láctico que baja el pH e impide el crecimiento de otros microorganismos',
+      'Porque se pasteuriza dos veces antes de envasarse',
+      'Porque el frío mata todas las bacterias durante la fermentación'
+    ],
+    c: 1,
+    exp: 'La acidificación por ácido láctico es uno de los métodos de conservación más antiguos. El pH bajo inhibe el crecimiento de muchos microorganismos deteriorantes y patógenos.'
+  },
+  {
+    cat: 'Biología', cls: 'cat-bio',
+    q: 'Una célula tiene glucosa y necesita energía. ¿Cuándo "elige" fermentar en lugar de respirar?',
+    opts: [
+      'Cuando tiene demasiado oxígeno disponible',
+      'Cuando no hay oxígeno disponible o este es escaso',
+      'Cuando la temperatura es muy alta',
+      'Cuando tiene poca glucosa disponible'
+    ],
+    c: 1,
+    exp: 'La fermentación es la estrategia anaeróbica: cuando el oxígeno escasea o no está, la célula recurre a la fermentación para seguir obteniendo ATP a partir del azúcar.'
+  },
+  {
+    cat: 'Biología', cls: 'cat-bio',
+    q: '¿Cuál es la principal diferencia entre fermentación y respiración celular?',
+    opts: [
+      'La fermentación produce más energía que la respiración',
+      'La respiración necesita oxígeno para funcionar; la fermentación no',
+      'La fermentación solo ocurre en animales; la respiración solo en plantas',
+      'La respiración transforma azúcar en alcohol; la fermentación no'
+    ],
+    c: 1,
+    exp: 'La respiración aeróbica usa oxígeno como aceptor final de electrones y produce mucho más ATP. La fermentación prescinde del oxígeno y produce menos energía, pero le permite a la célula sobrevivir igual.'
+  },
+  {
+    cat: 'Tecnología', cls: 'cat-tec',
+    vf: true,
+    q: 'Verdadero o Falso: Si una bacteria láctica fermenta en un medio con mucho oxígeno disponible, va a producir más ácido láctico porque tiene más energía para trabajar.',
+    opts: ['Verdadero', 'Falso'],
+    c: 1,
+    exp: 'Falso. Con oxígeno, muchos microorganismos prefieren respirar en lugar de fermentar. La fermentación láctica ocurre principalmente cuando el oxígeno es escaso o nulo.'
+  },
+  {
+    cat: 'Tecnología', cls: 'cat-tec',
+    q: '¿Qué tiene de especial el kéfir respecto al yogur en cuanto a los microorganismos que intervienen?',
+    opts: [
+      'El kéfir solo usa bacterias, igual que el yogur',
+      'En el kéfir intervienen levaduras y bacterias juntas; en el yogur solo bacterias lácticas',
+      'El kéfir fermenta con oxígeno; el yogur sin oxígeno',
+      'Son exactamente iguales en su proceso de fermentación'
+    ],
+    c: 1,
+    exp: 'El kéfir es una fermentación mixta: levaduras y bacterias coexisten en los granos de kéfir y actúan juntas. Eso le da su perfil particular de sabor y sus propiedades.'
+  },
+  {
+    cat: 'Local', cls: 'cat-loc',
+    q: 'El vino de la costa de Berisso se elabora con uvas que crecen a orillas del Río de la Plata. ¿Qué tiene que pasar para que el jugo de esas uvas se convierta en vino?',
+    opts: [
+      'Calentarlo para que el azúcar se evapore y quede el alcohol',
+      'Levaduras presentes en la piel de la uva (o agregadas) transforman el azúcar en etanol y CO₂',
+      'Bacterias acéticas convierten el azúcar directamente en alcohol',
+      'El jugo se congela y al descongelarse libera el alcohol naturalmente'
+    ],
+    c: 1,
+    exp: 'La fermentación alcohólica del vino es llevada a cabo por levaduras — naturalmente presentes en la piel de la uva o seleccionadas — que transforman los azúcares del jugo en etanol y CO₂.'
+  }
+];
+
+// ─── ESTADO ──────────────────────────────────────────────────────────────────
+let player = '';
+let deck = [];
+let current = 0;
+let score = 0;
+let answered = false;
+
+// ─── BARAJADO ────────────────────────────────────────────────────────────────
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function prepDeck() {
+  return shuffle(QUESTIONS).map(q => {
+    if (q.vf) return { ...q, shuffledOpts: q.opts, shuffledC: q.c };
+    const indexed = q.opts.map((o, i) => ({ text: o, correct: i === q.c }));
+    const shuffled = shuffle(indexed);
+    return {
+      ...q,
+      shuffledOpts: shuffled.map(o => o.text),
+      shuffledC: shuffled.findIndex(o => o.correct)
+    };
+  });
+}
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+function render() {
+  if (current >= deck.length) { showEnd(); return; }
+  const q = deck[current];
+  answered = false;
+
+  document.getElementById('q-num-label').textContent = (current + 1) + ' / ' + deck.length;
+  document.getElementById('pts-badge').textContent = score + ' pts';
+  document.getElementById('progress-fill').style.width = ((current + 1) / deck.length * 100) + '%';
+
+  const badge = document.getElementById('cat-badge');
+  badge.textContent = q.cat;
+  badge.className = q.cls;
+
+  document.getElementById('q-text').textContent = q.q;
+  document.getElementById('feedback').textContent = 'Seleccioná una respuesta para continuar.';
+  document.getElementById('btn-next').style.display = 'none';
+
+  const opts = document.getElementById('options');
+  opts.innerHTML = '';
+  opts.className = q.vf ? 'vf-mode' : '';
+
+  q.shuffledOpts.forEach((o, i) => {
+    const b = document.createElement('button');
+    b.className = 'opt';
+    b.textContent = o;
+    b.onclick = () => answer(i, b);
+    opts.appendChild(b);
+  });
+}
+
+function answer(idx, btn) {
+  if (answered) return;
+  answered = true;
+  const q = deck[current];
+  document.querySelectorAll('.opt').forEach(b => b.disabled = true);
+
+  if (idx === q.shuffledC) {
+    btn.classList.add('correct');
+    score++;
+    document.getElementById('pts-badge').textContent = score + ' pts';
+    document.getElementById('feedback').innerHTML = '<strong>¡Correcto!</strong> ' + q.exp;
+  } else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('.opt')[q.shuffledC].classList.add('reveal');
+    document.getElementById('feedback').innerHTML = '<strong>No es esa.</strong> ' + q.exp;
+  }
+  document.getElementById('btn-next').style.display = 'block';
+}
+
+// ─── FIN ─────────────────────────────────────────────────────────────────────
+function showEnd() {
+  document.getElementById('screen-game').style.display = 'none';
+  document.getElementById('screen-end').style.display = 'block';
+
+  const pct = score / deck.length;
+  let title, msg;
+  if (pct >= 0.9) {
+    title = 'Excelente arranque';
+    msg = 'Muy bien conectado lo que ya sabías con el tema de hoy. Vas a disfrutar el análisis de caso.';
+  } else if (pct >= 0.6) {
+    title = 'Buen punto de partida';
+    msg = 'Tenés la base. Prestá atención a la diferencia entre fermentación y respiración en la clase de hoy.';
+  } else {
+    title = 'Tema nuevo, bienvenido';
+    msg = 'Hoy vamos a construir juntos todos estos conceptos. Las preguntas que dudaste son exactamente el eje de la clase.';
+  }
+
+  document.getElementById('end-score-big').textContent = score;
+  document.getElementById('end-player').textContent = player;
+  document.getElementById('end-title').textContent = title;
+  document.getElementById('end-msg').textContent = msg;
+
+  sendResult();
+}
+
+function sendResult() {
+  const status = document.getElementById('send-status');
+  fetch('https://formspree.io/f/xjgdalvr', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({
+      juego: 'bioCUEST 4',
+      nombre: player,
+      puntaje: score + '/' + deck.length
+    })
+  })
+  .then(r => {
+    status.textContent = r.ok ? '✓ Resultado registrado.' : '⚠ No se pudo registrar el resultado.';
+  })
+  .catch(() => {
+    status.textContent = '⚠ Sin conexión. Avisale al profe tu puntaje.';
+  });
+}
+
+// ─── INICIO ──────────────────────────────────────────────────────────────────
+function startGame() {
+  const val = document.getElementById('name-input').value.trim();
+  if (!val) { document.getElementById('name-input').focus(); return; }
+  player = val;
+  deck = prepDeck();
+  current = 0; score = 0;
+  document.getElementById('screen-name').style.display = 'none';
+  document.getElementById('screen-game').style.display = 'block';
+  render();
+}
+
+document.getElementById('btn-start').onclick = startGame;
+document.getElementById('name-input').addEventListener('keydown', e => { if (e.key === 'Enter') startGame(); });
+document.getElementById('btn-next').onclick = () => { current++; render(); };
+</script>
+</body>
+</html>
